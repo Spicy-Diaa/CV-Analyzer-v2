@@ -253,9 +253,10 @@ def render_ats_report(result):
     s = result["score"]
     st.subheader("ATS Analysis Results")
 
-    found = sum(1 for i in result["items"] if i["status"] == "Found")
-    miss = sum(1 for i in result["items"] if i["status"] == "Missing")
-    imp = sum(1 for i in result["items"] if i["status"] == "Needs Improvement")
+    _it, _ck = result["items"], result["checks"]
+    found = sum(1 for i in _it if i["status"] == "Found") + sum(1 for c in _ck if c["status"] == "Good")
+    miss = sum(1 for i in _it if i["status"] == "Missing") + sum(1 for c in _ck if c["status"] == "Problem")
+    imp = sum(1 for i in _it if i["status"] == "Needs Improvement") + sum(1 for c in _ck if c["status"] == "Needs Improvement")
     st.markdown("<div class='hp-counters'>"
                 + _counter(found, "Found", COLORS["Good"])
                 + _counter(imp, "Needs Improvement", COLORS["Needs Improvement"])
