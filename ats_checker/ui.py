@@ -74,6 +74,7 @@ _WHY = {
     "hidden_info": "Information inside images or icons is invisible to the ATS.",
     "layout": "Columns and tables can make the ATS read your sections in the wrong order.",
     "images_icons": "Photos, icons and symbols are ignored by the ATS or turned into unreadable characters.",
+    "font_sizes": "Tiny text is hard to read, and too many different sizes make the CV look messy and harder for the ATS to structure.",
     "length": "Too short looks empty and too long gets skimmed; 1-2 pages is the usual sweet spot.",
     "headings": "ATS software finds your sections by standard headings such as Education and Experience.",
     "dates": "Consistent dates let the ATS calculate your experience correctly.",
