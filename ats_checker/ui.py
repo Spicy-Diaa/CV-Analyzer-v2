@@ -78,6 +78,8 @@ _WHY = {
     "file_size": "Many job portals reject large files, and heavy PDFs often contain images the ATS cannot read.",
     "links": "Recruiters check your LinkedIn or GitHub to verify your experience, and the ATS can read links only when they are plain text.",
     "design": "Cramped margins, scattered alignment and tight line spacing make a CV tiring to read and harder for the ATS to structure.",
+        "quantifying": "Numbers turn a vague duty into proof of impact, and recruiters notice results far faster than responsibilities.",
+    "action_verbs": "Bullets that start with strong action verbs read as achievements, not just job descriptions.",
   
     "length": "Too short looks empty and too long gets skimmed; 1-2 pages is the usual sweet spot.",
     "headings": "ATS software finds your sections by standard headings such as Education and Experience.",
@@ -88,7 +90,7 @@ _WHY = {
 _PERSONAL_KEYS = {"name", "email", "phone", "location"}
 
 _FUTURE = [
-    "Quantifying Impact", "Repetition", "Spelling & Grammar",
+    "Repetition", "Spelling & Grammar",
     "ATS Parse Rate", "HR Red Flags",
 ]
 
@@ -115,7 +117,8 @@ def _build_categories(result):
     essentials = [_from_item(i) for i in items if i["key"] in _PERSONAL_KEYS] + \
                  [_from_check(c) for c in checks if c["category"] == "parsing"]
     sections = [_from_item(i) for i in items if i["key"] not in _PERSONAL_KEYS]
-    formatting = [_from_check(c) for c in checks if c["category"] != "parsing"]
+    formatting = [_from_check(c) for c in checks if c["category"] not in ("parsing", "content")]
+    content = [_from_check(c) for c in checks if c["category"] == "content"]
 
     return [
         {"id": "essentials", "icon": "📋", "title": "ATS Essentials", "entries": essentials,
@@ -124,6 +127,7 @@ def _build_categories(result):
          "pct": _pct(bd, ["Important CV sections"])},
         {"id": "formatting", "icon": "🛠️", "title": "Formatting", "entries": formatting,
          "pct": _pct(bd, ["Formatting quality", "Organization & consistency"])},
+              {"id": "content", "icon": "✍️", "title": "Content", "entries": content, "pct": None},
         {"id": "recs", "icon": "💡", "title": "Recommendations", "entries": [], "pct": None},
         {"id": "future", "icon": "🧪", "title": "Coming soon", "entries": [], "pct": None},
     ]
