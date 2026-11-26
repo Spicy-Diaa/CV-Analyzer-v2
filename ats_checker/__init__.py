@@ -16,6 +16,7 @@ def run_ats_check(pdf_bytes):
     ext = extract_pdf(pdf_bytes)
     if ext["error"]:
         return {"error": ext["error"], "is_scanned": ext["is_scanned"], "images": ext["images"], "pages": ext["pages"]}
+    ext["file_size"] = len(pdf_bytes)
     det = analyze(ext["text"])
     checks = analyze_formatting(ext, det)
     score = compute_score(det["items"], checks)
