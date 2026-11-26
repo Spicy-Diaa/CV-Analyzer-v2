@@ -178,19 +178,67 @@ def _font_sizes(ext):
         return _check("font_sizes", "format", "Font size consistency", PROBLEM,
                       f"Most of the text is {body:g}pt, which is too small to read comfortably.",
                       "Use 10-12pt for the main text and 14-18pt for headings.")
-    if body < 10 or len(used) > 6:
-        why = f"the main text is {body:g}pt" if body < 10 else f"{len(used)} different font sizes are used ({sizes_text})"
+    if body < 9.5 or len(used) > 6:
+        why = f"the main text is {body:g}pt" if body < 9.5 else f"{len(used)} different font sizes are used ({sizes_text})"
         return _check("font_sizes", "format", "Font size consistency", IMPROVE,
                       f"Font sizes could be cleaner: {why}.",
                       "Use 10-12pt for the main text and stick to 2-3 sizes (body, subheadings, name/headings).")
     return _check("font_sizes", "format", "Font size consistency", GOOD,
                   f"Main text is {body:g}pt and the CV uses {len(used)} font size(s): {sizes_text}.")
 
+RE_LINKEDIN = re.compile(r"linkedin\.com/[^\s|,;]+", re.I)
+RE_GITHUB = re.compile(r"github\.com/[^\s|,;]+", re.I)
+RE_ANY_URL = re.compile(r"(?:https?://|www\.)[^\s|,;]+", re.I)
+
+
+def _file_size(ext):
+    """File size check (the file itself, as uploaded)."""
+    size = ext.get("file_size")
+    if not size:
+        return _check("file_size", "parsing", "File format & size", SKIPPED,
+                      "File size information was not available.")
+    mb = size / (1024 * 1024)
+    shown = f"{mb:.2f} MB" if mb >= 0.1 else f"{size / 1024:.0f} KB"
+    if mb > 5:
+        return _check("file_size", "parsing", "File format & size", PROBLEM,
+                      f"The PDF is {shown}, which is too large. Many ATS portals reject files over 5 MB.",
+                      "Compress the PDF or remove heavy images. Aim for under 2 MB.")
+    if mb > 2:
+        return _check("file_size", "parsing", "File format & size", IMPROVE,
+                      f"The PDF is {shown}, which is larger than recommended.",
+                      "Compress the PDF or remove images. Aim for under 2 MB.")
+    return _check("file_size", "parsing", "File format & size", GOOD,
+                  f"The file is a text-based PDF of {shown}, a good size for ATS upload.")
+
+
+def _links(ext):
+    """Look for professional profile links in the extracted text."""
+    text = ext["text"]
+    linkedin = RE_LINKEDIN.search(text)
+    github = RE_GITHUB.search(text)
+    others = [u for u in RE_ANY_URL.findall(text) if "linkedin.com" not in u.lower() and "github.com" not in u.lower()]
+    found = []
+    if linkedin:
+        found.append("LinkedIn")
+    if github:
+        found.append("GitHub")
+    if others:
+        found.append(f"{len(others)} other link(s)")
+    if linkedin or github:
+        return _check("links", "parsing", "Profile links", GOOD, "Found: " + ", ".join(found) + ".")
+    if others:
+        return _check("links", "parsing", "Profile links", IMPROVE,
+                      "Only other links were found (" + ", ".join(found) + "), but no LinkedIn or GitHub.",
+                      "Add your LinkedIn profile URL (and GitHub if you are in tech) as plain text in the header.")
+    return _check("links", "parsing", "Profile links", IMPROVE,
+                  "No LinkedIn, GitHub or portfolio link was found in the text.",
+                  "Add your LinkedIn profile URL (and GitHub if you are in tech) as plain text in the header.")
+
 
 def analyze_formatting(ext, det):
     checks = [
-        _text_extraction(ext), _hidden_in_images(ext, det),
-         _layout(ext), _images_icons(ext), _font_sizes(ext), _length(ext, det),
+        _text_extraction(ext), _hidden_in_images(ext, det), _file_size(ext), _links(ext),
+        _layout(ext), _images_icons(ext), _font_sizes(ext), _length(ext, det),
         _headings(det), _dates(ext["text"]), _bullets(ext, det),
     ]
     return checks
