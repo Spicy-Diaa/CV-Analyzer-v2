@@ -127,7 +127,8 @@ def _build_categories(result):
          "pct": _pct(bd, ["Important CV sections"])},
         {"id": "formatting", "icon": "🛠️", "title": "Formatting", "entries": formatting,
          "pct": _pct(bd, ["Formatting quality", "Organization & consistency"])},
-              {"id": "content", "icon": "✍️", "title": "Content", "entries": content, "pct": None},
+         {"id": "content", "icon": "✍️", "title": "Content", "entries": content,
+         "pct": _pct(bd, ["Content quality"])},             
         {"id": "recs", "icon": "💡", "title": "Recommendations", "entries": [], "pct": None},
         {"id": "future", "icon": "🧪", "title": "Coming soon", "entries": [], "pct": None},
     ]
