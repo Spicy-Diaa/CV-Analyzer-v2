@@ -288,11 +288,49 @@ def _design(ext):
     return _check("design", "format", "Design: margins & spacing", GOOD,
                   "Layout looks balanced (" + ", ".join(notes) + ").")
 
+def _quantifying(det):
+    """Share of experience/project lines that contain numbers (from the detector's real metrics)."""
+    m = det["metrics"]
+    total, num = m["bullets"], m["quantified"]
+    if total < 3:
+        return _check("quantifying", "content", "Quantifying impact", SKIPPED,
+                      "Not enough experience or project lines were found to measure this.")
+    share = num / total
+    if share >= 0.4:
+        return _check("quantifying", "content", "Quantifying impact", GOOD,
+                      f"{num} of {total} experience/project lines contain numbers ({share:.0%}).")
+    if num == 0:
+        return _check("quantifying", "content", "Quantifying impact", IMPROVE,
+                      f"None of the {total} experience/project lines contain numbers.",
+                      "Add measurable results: percentages, counts, time saved, users, or sizes "
+                      "(e.g. 'Reduced page load time by 30%').")
+    return _check("quantifying", "content", "Quantifying impact", IMPROVE,
+                  f"Only {num} of {total} experience/project lines contain numbers ({share:.0%}).",
+                  "Add numbers to more lines: percentages, counts, time saved, users or project sizes.")
+
+
+def _action_verbs(det):
+    """Share of experience/project lines that start with a strong action verb (from the detector's metrics)."""
+    m = det["metrics"]
+    total, verbs = m["bullets"], m["action_verb_lines"]
+    if total < 3:
+        return _check("action_verbs", "content", "Action verbs in bullets", SKIPPED,
+                      "Not enough experience or project lines were found to measure this.")
+    share = verbs / total
+    if share >= 0.5:
+        return _check("action_verbs", "content", "Action verbs in bullets", GOOD,
+                      f"{verbs} of {total} lines start with a strong action verb ({share:.0%}).")
+    return _check("action_verbs", "content", "Action verbs in bullets", IMPROVE,
+                  f"Only {verbs} of {total} lines start with a recognised action verb ({share:.0%}).",
+                  "Start each bullet with a strong verb such as Developed, Built, Designed, Implemented, "
+                  "Improved or Led.")
+
 
 def analyze_formatting(ext, det):
     checks = [
         _text_extraction(ext), _hidden_in_images(ext, det), _file_size(ext), _links(ext),
         _layout(ext), _images_icons(ext), _font_sizes(ext), _design(ext), _length(ext, det),
         _headings(det), _dates(ext["text"]), _bullets(ext, det),
+        _quantifying(det), _action_verbs(det),
     ]
     return checks
