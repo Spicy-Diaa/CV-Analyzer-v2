@@ -8,7 +8,8 @@ SECTIONS = {"summary": 4, "education": 6, "experience": 7, "skills": 5,
 # formatting categories: max points, check category
 FORMAT_CATS = [("Readability & parsing", "parsing", 20),
                ("Formatting quality", "format", 15),
-               ("Organization & consistency", "organization", 10)]
+               ("Organization & consistency", "organization", 10),
+               ("Content quality", "content", 20)]
 
 CHECK_VALUE = {"Good": 1.0, "Needs Improvement": 0.5, "Problem": 0.0}
 
@@ -37,8 +38,9 @@ def compute_score(items, checks):
         names = ", ".join(c["name"].lower() for c in scored)
         breakdown.append({"category": title, "earned": round(earned, 1), "max": max_pts, "detail": f"Based on: {names}."})
 
-    score = int(round(sum(b["earned"] for b in breakdown)))
-    score = max(0, min(100, score))
+    total_max = sum(b["max"] for b in breakdown)
+    score = int(round(100 * sum(b["earned"] for b in breakdown) / total_max)) if total_max else 0
+    score = max(0, min(100, score))  
     label = ("Excellent" if score >= 85 else "Good" if score >= 70 else
              "Needs work" if score >= 50 else "Poor")
     return {
