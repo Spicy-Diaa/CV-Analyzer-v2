@@ -234,11 +234,65 @@ def _links(ext):
                   "No LinkedIn, GitHub or portfolio link was found in the text.",
                   "Add your LinkedIn profile URL (and GitHub if you are in tech) as plain text in the header.")
 
+def _design(ext):
+    """Margins, left-edge consistency and line spacing, measured from real text positions."""
+    frags = [(p, x, y, fs, t) for p, x, y, fs, t in ext.get("fragments", []) if t.strip() and fs > 0]
+    if len(frags) < 10:
+        return _check("design", "format", "Design: margins & spacing", SKIPPED,
+                      "Not enough layout information was available for this file.")
+    problems, notes = [], []
+
+    # left margin (use the 5th percentile of x so one stray item does not decide)
+    xs = sorted(x for _, x, _, _, _ in frags)
+    left = xs[max(0, int(len(xs) * 0.05))]
+    if left < 28:
+        problems.append(f"the left margin is only about {left / 72:.2f} inch")
+    else:
+        notes.append(f"left margin about {left / 72:.1f} inch")
+
+    # left-edge consistency: share of lines that start near the most common start position
+    starts = {}
+    for _, x, _, _, _ in frags:
+        key = round(x / 6)
+        starts[key] = starts.get(key, 0) + 1
+    top_share = max(starts.values()) / len(frags)
+    if top_share < 0.25:
+        problems.append("text starts at many different horizontal positions")
+
+    # line spacing: median gap between consecutive lines on the same page, relative to font size
+    gaps = []
+    by_page = {}
+    for p, x, y, fs, t in frags:
+        by_page.setdefault(p, []).append((round(y), fs))
+    for items in by_page.values():
+        ys = sorted({y for y, _ in items}, reverse=True)
+        sizes = [fs for _, fs in items]
+        body = sorted(sizes)[len(sizes) // 2]
+        for a, b in zip(ys, ys[1:]):
+            gap = a - b
+            if 0 < gap < body * 3:
+                gaps.append(gap / body)
+    if gaps:
+        gaps.sort()
+        ratio = gaps[len(gaps) // 2]
+        if ratio < 1.05:
+            problems.append("lines are packed very tightly")
+        else:
+            notes.append(f"line spacing about {ratio:.1f}x the font size")
+
+    if problems:
+        return _check("design", "format", "Design: margins & spacing", IMPROVE,
+                      "Layout could be cleaner: " + "; ".join(problems) + ".",
+                      "Keep margins between 0.5 and 1 inch, align text to a clear left edge, "
+                      "and leave comfortable space between lines and sections.")
+    return _check("design", "format", "Design: margins & spacing", GOOD,
+                  "Layout looks balanced (" + ", ".join(notes) + ").")
+
 
 def analyze_formatting(ext, det):
     checks = [
         _text_extraction(ext), _hidden_in_images(ext, det), _file_size(ext), _links(ext),
-        _layout(ext), _images_icons(ext), _font_sizes(ext), _length(ext, det),
+        _layout(ext), _images_icons(ext), _font_sizes(ext), _design(ext), _length(ext, det),
         _headings(det), _dates(ext["text"]), _bullets(ext, det),
     ]
     return checks
