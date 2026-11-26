@@ -77,6 +77,7 @@ _WHY = {
     "font_sizes": "Tiny text is hard to read, and too many different sizes make the CV look messy and harder for the ATS to structure.",
     "file_size": "Many job portals reject large files, and heavy PDFs often contain images the ATS cannot read.",
     "links": "Recruiters check your LinkedIn or GitHub to verify your experience, and the ATS can read links only when they are plain text.",
+    "design": "Cramped margins, scattered alignment and tight line spacing make a CV tiring to read and harder for the ATS to structure.",
   
     "length": "Too short looks empty and too long gets skimmed; 1-2 pages is the usual sweet spot.",
     "headings": "ATS software finds your sections by standard headings such as Education and Experience.",
