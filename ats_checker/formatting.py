@@ -158,11 +158,39 @@ def _bullets(ext, det):
     return _check("bullets", "organization", "Bullet points", GOOD,
                   f"{bullets} bullet line(s) found." if bullets else "Not much descriptive text, so bullets are not required.")
 
+def _font_sizes(ext):
+    """Check body font size and how many different font sizes are used (uses real fragment data)."""
+    weights = {}
+    for _pno, _x, _y, fs, text in ext.get("fragments", []):
+        n = len(text.strip())
+        if n and fs > 0:
+            size = round(fs * 2) / 2  # group to the nearest 0.5pt
+            weights[size] = weights.get(size, 0) + n
+    if not weights:
+        return _check("font_sizes", "format", "Font size consistency", SKIPPED,
+                      "Font size information was not available for this file.")
+    body = max(weights, key=weights.get)
+    total = sum(weights.values())
+    # ignore tiny leftovers (<2% of the text) when counting how many sizes are used
+    used = sorted(s for s, w in weights.items() if w / total >= 0.02)
+    sizes_text = ", ".join(f"{s:g}pt" for s in used)
+    if body < 9:
+        return _check("font_sizes", "format", "Font size consistency", PROBLEM,
+                      f"Most of the text is {body:g}pt, which is too small to read comfortably.",
+                      "Use 10-12pt for the main text and 14-18pt for headings.")
+    if body < 10 or len(used) > 6:
+        why = f"the main text is {body:g}pt" if body < 10 else f"{len(used)} different font sizes are used ({sizes_text})"
+        return _check("font_sizes", "format", "Font size consistency", IMPROVE,
+                      f"Font sizes could be cleaner: {why}.",
+                      "Use 10-12pt for the main text and stick to 2-3 sizes (body, subheadings, name/headings).")
+    return _check("font_sizes", "format", "Font size consistency", GOOD,
+                  f"Main text is {body:g}pt and the CV uses {len(used)} font size(s): {sizes_text}.")
+
 
 def analyze_formatting(ext, det):
     checks = [
         _text_extraction(ext), _hidden_in_images(ext, det),
-        _layout(ext), _images_icons(ext), _length(ext, det),
+         _layout(ext), _images_icons(ext), _font_sizes(ext), _length(ext, det),
         _headings(det), _dates(ext["text"]), _bullets(ext, det),
     ]
     return checks
