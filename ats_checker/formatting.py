@@ -342,12 +342,36 @@ def _weak_phrases(text):
                   f"Found {total} vague phrase(s): {names}.",
                   "Replace them with a strong verb and a result, e.g. 'Built X that improved Y by 20%'.")
     
+def _repetition(text):
+    """Flags meaningful words that are repeated many times (tech terms and common words are ignored)."""
+    skip = set("""the and for with that this from have has had was were are been being into over under about
+        their them they you your our out all any can will would should could not but also more most such than then
+        using used use new work based including per via each other both while within across through between
+        usa springfield remote linkedin portfolio github email phone cv resume""".split())
+    skip |= {"html", "html5", "css", "css3", "javascript", "react", "git", "python", "bootstrap",
+             "figma", "rest", "apis", "api", "sql", "node", "java", "docker", "aws", "design", "responsive"}
+    words = re.findall(r"[A-Za-z][A-Za-z'-]{3,}", text.lower())
+    counts = {}
+    for w in words:
+        if w not in skip:
+            counts[w] = counts.get(w, 0) + 1
+    repeated = {w: n for w, n in counts.items() if n >= 4}
+    if not repeated:
+        return _check("repetition", "content", "Repetition", GOOD,
+                      "No frequently repeated words were found.")
+    top = sorted(repeated.items(), key=lambda x: -x[1])[:5]
+    names = ", ".join(f"'{w}' x{n}" for w, n in top)
+    status = IMPROVE if len(repeated) <= 3 else PROBLEM
+    return _check("repetition", "content", "Repetition", status,
+                  f"Some words are repeated many times: {names}.",
+                  "Replace repeated words with synonyms or stronger, more specific verbs.")
+
 
 def analyze_formatting(ext, det):
     checks = [
         _text_extraction(ext), _hidden_in_images(ext, det), _file_size(ext), _links(ext),
         _layout(ext), _images_icons(ext), _font_sizes(ext), _design(ext), _length(ext, det),
         _headings(det), _dates(ext["text"]), _bullets(ext, det),
-        _quantifying(det), _action_verbs(det), _weak_phrases(ext["text"]),
+        _quantifying(det), _action_verbs(det), _weak_phrases(ext["text"]), _repetition(ext["text"]),
     ]
     return checks
