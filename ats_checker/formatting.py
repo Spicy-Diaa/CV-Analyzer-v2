@@ -326,11 +326,28 @@ def _action_verbs(det):
                   "Improved or Led.")
 
 
+def _weak_phrases(text):
+    """Counts vague, passive phrases that weaken experience bullets."""
+    low = text.lower()
+    phrases = ("responsible for", "duties included", "worked on", "helped with",
+               "assisted with", "tasked with", "in charge of")
+    found = {p: low.count(p) for p in phrases if low.count(p)}
+    total = sum(found.values())
+    if total == 0:
+        return _check("weak_phrases", "content", "Weak phrases", GOOD,
+                      "No vague phrases such as 'responsible for' or 'worked on' were found.")
+    names = ", ".join(f"'{p}' x{n}" for p, n in found.items())
+    status = IMPROVE if total <= 3 else PROBLEM
+    return _check("weak_phrases", "content", "Weak phrases", status,
+                  f"Found {total} vague phrase(s): {names}.",
+                  "Replace them with a strong verb and a result, e.g. 'Built X that improved Y by 20%'.")
+    
+
 def analyze_formatting(ext, det):
     checks = [
         _text_extraction(ext), _hidden_in_images(ext, det), _file_size(ext), _links(ext),
         _layout(ext), _images_icons(ext), _font_sizes(ext), _design(ext), _length(ext, det),
         _headings(det), _dates(ext["text"]), _bullets(ext, det),
-        _quantifying(det), _action_verbs(det),
+        _quantifying(det), _action_verbs(det), _weak_phrases(ext["text"]),
     ]
     return checks
