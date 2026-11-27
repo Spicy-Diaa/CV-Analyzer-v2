@@ -134,6 +134,9 @@ def _split_skill_items(lines):
 def _find_name(lines):
     for l in lines[:10]:
         s = l.strip()
+        m = re.match(r"^([A-Z][A-Z'’.-]+(?:\s+[A-Z][A-Z'’.-]+){1,2})(?=[A-Z][a-z])", s)
+        if m:
+            return m.group(1)
         low = s.lower()
         if not s or len(s) > 40 or "@" in s or re.search(r"\d", s) or "http" in low or "www." in low:
             continue
