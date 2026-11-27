@@ -23,6 +23,7 @@ def run_ats_check(pdf_bytes):
     return {
         "error": None, "is_scanned": False,
         "pages": ext["pages"], "images": ext["images"],
+        "text": ext["text"],
         "score": score, "items": det["items"], "checks": checks, "contact": det["contact"],
         "recommendations": build_recommendations(det["items"], checks, det["metrics"]),
     }
