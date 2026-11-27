@@ -262,7 +262,8 @@ def render_ats_report(result):
                 + _counter(imp, "Needs Improvement", COLORS["Needs Improvement"])
                 + _counter(miss, "Missing", COLORS["Problem"])
                 + "</div>", unsafe_allow_html=True)
-
+    with st.expander("DEBUG: first lines of extracted text"):
+         st.code("\n".join(result.get("text", "").splitlines()[:15]) or "NO TEXT KEY IN RESULT")
     _dashboard(result)
 
     with st.expander("📊 Score breakdown", expanded=False):
