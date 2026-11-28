@@ -85,6 +85,8 @@ _WHY = {
     "headings": "ATS software finds your sections by standard headings such as Education and Experience.",
     "dates": "Consistent dates let the ATS calculate your experience correctly.",
     "bullets": "Short bullet points are easier for both the ATS and recruiters to scan.",
+    "weak_phrases": "Vague phrases like 'responsible for' describe duties, not results, so they make your experience sound weaker.",
+    "repetition": "Repeating the same words makes your CV read flat; varied wording shows a wider vocabulary.",
 }
 
 _PERSONAL_KEYS = {"name", "email", "phone", "location"}
