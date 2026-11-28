@@ -20,17 +20,8 @@ def build_recommendations(items, checks, metrics):
     for c in checks:
         if c["status"] in ("Problem", "Needs Improvement") and c["fix"]:
             recs.append({"priority": HIGH if c["status"] == "Problem" else MEDIUM,
-                         "title": f"Formatting - {c['name']}", "detail": f"{c['detail']} {c['fix']}"})
-
-    b, q = metrics["bullets"], metrics["quantified"]
-    if b >= 3 and q / b < 0.3:
-        recs.append({"priority": MEDIUM, "title": "Add measurable achievements",
-                     "detail": f"Only {q} of {b} experience/project lines contain numbers. Add results such as "
-                               "'reduced load time by 30%' or 'built a dashboard used by 50 students'."})
-    if b >= 3 and metrics["action_verb_lines"] / b < 0.3:
-        recs.append({"priority": LOW, "title": "Start bullets with action verbs",
-                     "detail": f"Only {metrics['action_verb_lines']} of {b} lines start with a strong verb "
-                               "(Developed, Built, Designed, Automated...)."})
+                         "title": f"{'Content' if c['category'] == 'content' else 'Formatting'} - {c['name']}",
+                         "detail": f"{c['detail']} {c['fix']}"})
 
     sc = metrics["skill_count"]
     if sc >= 8 and not metrics["skills_grouped"]:
