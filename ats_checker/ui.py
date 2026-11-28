@@ -90,7 +90,7 @@ _WHY = {
 _PERSONAL_KEYS = {"name", "email", "phone", "location"}
 
 _FUTURE = [
-    "Repetition", "Spelling & Grammar",
+    "Spelling & Grammar",
     "ATS Parse Rate", "HR Red Flags",
 ]
 
