@@ -87,6 +87,7 @@ _WHY = {
     "bullets": "Short bullet points are easier for both the ATS and recruiters to scan.",
     "weak_phrases": "Vague phrases like 'responsible for' describe duties, not results, so they make your experience sound weaker.",
     "repetition": "Repeating the same words makes your CV read flat; varied wording shows a wider vocabulary.",
+    "employment_gaps": "Long unexplained gaps between dates can make recruiters guess; a short note about study, projects or freelance work avoids that.",
 }
 
 _PERSONAL_KEYS = {"name", "email", "phone", "location"}
