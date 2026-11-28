@@ -368,11 +368,32 @@ def _repetition(text):
                   "Replace repeated words with synonyms or stronger, more specific verbs.")
 
 
+def _employment_gaps(text):
+    """Looks for long gaps between consecutive month-year dates (a rough signal, not a verdict)."""
+    months = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+              "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12}
+    points = set()
+    for m in RE_MONTH_YEAR.finditer(text):
+        parts = m.group(0).lower().replace(".", "").split()
+        if len(parts) == 2 and parts[0][:3] in months:
+            points.add(int(parts[1]) * 12 + months[parts[0][:3]])
+    points = sorted(points)
+    if len(points) < 3:
+        return _check("employment_gaps", "content", "Employment gaps", SKIPPED,
+                      "Not enough dated experience was found to check for gaps.")
+    gaps = [b - a for a, b in zip(points, points[1:]) if b - a > 12]
+    if not gaps:
+        return _check("employment_gaps", "content", "Employment gaps", GOOD,
+                      "No gaps longer than 12 months were found between the dates in your CV.")
+    return _check("employment_gaps", "content", "Employment gaps", IMPROVE,
+                  f"Found {len(gaps)} gap(s) longer than 12 months between dates (longest: {max(gaps)} months).",
+                  "If there is a gap, briefly explain it (study, freelance, projects, courses) so recruiters do not guess.")
+
 def analyze_formatting(ext, det):
     checks = [
         _text_extraction(ext), _hidden_in_images(ext, det), _file_size(ext), _links(ext),
         _layout(ext), _images_icons(ext), _font_sizes(ext), _design(ext), _length(ext, det),
         _headings(det), _dates(ext["text"]), _bullets(ext, det),
-        _quantifying(det), _action_verbs(det), _weak_phrases(ext["text"]), _repetition(ext["text"]),
+        _quantifying(det), _action_verbs(det), _weak_phrases(ext["text"]), _repetition(ext["text"]),_employment_gaps(ext["text"]),
     ]
     return checks
