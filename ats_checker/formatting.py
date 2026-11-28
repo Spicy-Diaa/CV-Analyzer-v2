@@ -349,7 +349,8 @@ def _repetition(text):
         using used use new work based including per via each other both while within across through between
         usa springfield remote linkedin portfolio github email phone cv resume""".split())
     skip |= {"html", "html5", "css", "css3", "javascript", "react", "git", "python", "bootstrap",
-             "figma", "rest", "apis", "api", "sql", "node", "java", "docker", "aws", "design", "responsive"}
+             "figma", "rest", "apis", "api", "sql", "node", "java", "docker", "aws", "design", "responsive",
+              "front-end", "frontend", "back-end", "backend", "full-stack", "developer", "development", "junior", "senior"}
     words = re.findall(r"[A-Za-z][A-Za-z'-]{3,}", text.lower())
     counts = {}
     for w in words:
